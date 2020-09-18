@@ -8,13 +8,13 @@
 
 template <typename scalar_t>
 __global__ void adaptive_gridsampler_forward_kernel(
-    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits,size_t> img,
-    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits,size_t> kernels,
-    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits,size_t> offsets_h,
-    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits,size_t> offsets_v,
+    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> img,
+    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> kernels,
+    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> offsets_h,
+    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> offsets_v,
     const int offset_unit,
     const int padding,
-    torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits,size_t> output,
+    torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> output,
     const size_t n) {
     auto global_idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (global_idx >= n) return;
@@ -66,16 +66,16 @@ __global__ void adaptive_gridsampler_forward_kernel(
 
 template <typename scalar_t>
 __global__ void adaptive_gridsampler_backward_kernel(
-    torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits,size_t> d_kernels,
-    torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits,size_t> d_offsets_h,
-    torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits,size_t> d_offsets_v,
-    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits,size_t> img,
-    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits,size_t> kernels,
-    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits,size_t> offsets_h,
-    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits,size_t> offsets_v,
+    torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> d_kernels,
+    torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> d_offsets_h,
+    torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> d_offsets_v,
+    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> img,
+    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> kernels,
+    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> offsets_h,
+    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> offsets_v,
     const int offset_unit,
     const int padding,
-    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits,size_t> output,
+    const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> output,
     const size_t n) {
     auto global_idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (global_idx >= n) return;
@@ -148,13 +148,13 @@ void adaptive_gridsampler_cuda_forward(
 
     AT_DISPATCH_FLOATING_TYPES(img.type(), "adaptive_gridsampler_cuda_forward", ([&] {
         adaptive_gridsampler_forward_kernel<scalar_t><<<blocks, threads>>>(
-            img.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits,size_t>(),
-            kernels.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits,size_t>(),
-            offsets_h.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits,size_t>(),
-            offsets_v.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits,size_t>(),
+            img.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits>(),
+            kernels.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits>(),
+            offsets_h.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits>(),
+            offsets_v.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits>(),
             offset_unit,
             padding,
-            output.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits,size_t>(),
+            output.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits>(),
             numel);
     }));
 }
@@ -178,16 +178,16 @@ std::vector<torch::Tensor> adaptive_gridsampler_cuda_backward(
 
     AT_DISPATCH_FLOATING_TYPES(img.type(), "adaptive_gridsampler_cuda_backward", ([&] {
         adaptive_gridsampler_backward_kernel<scalar_t><<<blocks, threads>>>(
-            d_kernels.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits,size_t>(),
-            d_offsets_h.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits,size_t>(),
-            d_offsets_v.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits,size_t>(),
-            img.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits,size_t>(),
-            kernels.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits,size_t>(),
-            offsets_h.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits,size_t>(),
-            offsets_v.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits,size_t>(),
+            d_kernels.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits>(),
+            d_offsets_h.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits>(),
+            d_offsets_v.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits>(),
+            img.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits>(),
+            kernels.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits>(),
+            offsets_h.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits>(),
+            offsets_v.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits>(),
             offset_unit,
             padding,
-            output.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits,size_t>(),
+            output.packed_accessor32<scalar_t,4,torch::RestrictPtrTraits>(),
             numel);
     }));
 
