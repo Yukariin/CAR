@@ -13,13 +13,13 @@ class GridSamplerFunction(torch.autograd.Function):
 
         ctx.padding = padding
         ctx.offset_unit = offset_unit
-        ctx.save_for_backward(img, kernels, offsets_h, offsets_v)
 
         b, c, h, w = img.size()
         assert h // downscale_factor == kernels.size(2)
         assert w // downscale_factor == kernels.size(3)
 
         img = nn.ReflectionPad2d(padding)(img)
+        ctx.save_for_backward(img, kernels, offsets_h, offsets_v)
         output = img.new(b, c, h // downscale_factor, w // downscale_factor).zero_()
 
         forward(img, kernels, offsets_h, offsets_v, offset_unit, padding, output)
@@ -29,7 +29,6 @@ class GridSamplerFunction(torch.autograd.Function):
     @staticmethod
     def backward(ctx, grad_output):
         img, kernels, offsets_h, offsets_v = ctx.saved_tensors
-        img = nn.ReflectionPad2d(ctx.padding)(img)
         d_img = d_kernels = d_offsets_h = d_offsets_v = d_offset_unit = d_padding = d_downscale_factor = None
 
         outputs = backward(img, kernels, offsets_h, offsets_v, ctx.offset_unit, ctx.padding, grad_output)
