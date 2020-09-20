@@ -123,12 +123,12 @@ __global__ void adaptive_gridsampler_backward_kernel(
             val = 0;
             val += kernel * (1 - beta) * (img[idb][idc][yT][xR] - img[idb][idc][yT][xL]);
             val += beta * (img[idb][idc][yB][xR] - img[idb][idc][yB][xL]);
-            d_offsets_h[idb][k_size * k_y + k_x][idy][idx] += val;
+            d_offsets_v[idb][k_size * k_y + k_x][idy][idx] += val;
 
             val = 0;
             val += kernel * (1 - alpha) * (img[idb][idc][yB][xL] - img[idb][idc][yT][xL]);
             val += alpha * (img[idb][idc][yB][xR] - img[idb][idc][yT][xR]);
-            d_offsets_v[idb][k_size * k_y + k_x][idy][idx] += val;
+            d_offsets_h[idb][k_size * k_y + k_x][idy][idx] += val;
         }
     }
 }
